@@ -1494,7 +1494,7 @@ public class RemoteStreamManager {
         String chargingStatus = isCharging ? "Charging" : "Discharging";
         
         String result = String.format(java.util.Locale.US,
-            "{\"percent\": %d, \"status\": \"%s\", \"consumed\": %d, \"remainingHours\": %.1f, \"warning\": %s, \"warningThreshold\": %d}",
+            "{\"percent\": %d, \"status\": \"%s\", \"consumed\": %d, \"remaining_hours\": %.1f, \"warning\": %s, \"warningThreshold\": %d}",
             currentLevel, chargingStatus, consumed, remainingHours, warningJson, warningThreshold
         );
         // FLog.d(TAG, "[Battery] Returning JSON: " + result);

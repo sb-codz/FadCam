@@ -1457,9 +1457,17 @@ public class RemoteStreamManager {
         double remainingHours = 0;
         String warning = "";
         
-        // Based on real-world test: 8 hours continuous live streaming = 61% battery drain
-        // Consumption rate: 61 / 8 = 7.625% per hour
-        final double CONSUMPTION_RATE_PER_HOUR = 7.625;
+        // Get user's device battery capacity (defaults to 5000mAh)
+        com.fadcam.SharedPreferencesManager prefs = com.fadcam.SharedPreferencesManager.getInstance(context);
+        int userBatteryMah = prefs.getBatteryCapacityMah();
+        
+        // Base consumption rate: 61% drain over 8 hours = 7.625% per hour (5000mAh reference)
+        // Adjusted for user's device: adjustedRate = 7.625 × (5000 / userMah)
+        // On smaller battery: higher % drain per hour (less total capacity)
+        // On larger battery: lower % drain per hour (more total capacity)
+        final double BASE_CONSUMPTION_RATE = 7.625;  // 5000mAh reference device
+        final int REFERENCE_BATTERY_MAH = 5000;
+        double CONSUMPTION_RATE_PER_HOUR = BASE_CONSUMPTION_RATE * (REFERENCE_BATTERY_MAH / (double) userBatteryMah);
         
         // Always calculate remaining time based on current battery level
         if (currentLevel > 0) {
@@ -1476,7 +1484,6 @@ public class RemoteStreamManager {
         }
         
         // Get configured battery warning threshold from SharedPreferencesManager
-        com.fadcam.SharedPreferencesManager prefs = com.fadcam.SharedPreferencesManager.getInstance(context);
         int warningThreshold = prefs.getBatteryWarningThreshold();
         // FLog.d(TAG, "[Battery] Retrieved threshold from prefs: " + warningThreshold);
         
@@ -1952,6 +1959,27 @@ public class RemoteStreamManager {
         prefs.setBatteryWarningThreshold(percentage);
         
         FLog.d(TAG, "Battery warning threshold set to " + percentage + "%");
+    }
+    
+    public int getBatteryCapacityMah() {
+        com.fadcam.SharedPreferencesManager prefs = com.fadcam.SharedPreferencesManager.getInstance(context);
+        return prefs.getBatteryCapacityMah();
+    }
+    
+    /**
+     * Set the device battery capacity in mAh.
+     * Used to calculate personalized battery estimates.
+     */
+    public void setBatteryCapacityMah(int mah) throws Exception {
+        if (mah < 1000 || mah > 10000) {
+            throw new IllegalArgumentException("Battery capacity must be between 1000 and 10000 mAh");
+        }
+        
+        // Store locally
+        com.fadcam.SharedPreferencesManager prefs = com.fadcam.SharedPreferencesManager.getInstance(context);
+        prefs.setBatteryCapacityMah(mah);
+        
+        FLog.d(TAG, "Battery capacity set to " + mah + " mAh");
     }
     
     // =========================================================================

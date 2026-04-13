@@ -182,6 +182,16 @@ public class RemoteStreamManager {
                     clientMetricsMap.clear();
                 }
                 NetworkMonitor.getInstance().stopMonitoring();
+                // Clear stream preset keys so normal recording settings take effect again
+                if (context != null) {
+                    android.content.SharedPreferences prefs = context.getSharedPreferences("FadCamPrefs", android.content.Context.MODE_PRIVATE);
+                    prefs.edit()
+                        .remove("stream_bitrate")
+                        .remove("stream_fps_cap")
+                        .remove("quality_preset")
+                        .apply();
+                    FLog.i(TAG, "[STREAM PRESET] Cleared all stream preset keys - recording will use normal settings");
+                }
             }
             
             if (!enabled) {
@@ -1659,14 +1669,16 @@ public class RemoteStreamManager {
         // Update quality preset
         streamQuality.setPreset(preset);
         
-        // Store bitrate + FPS cap in SharedPreferences
-        // Resolution comes from normal recording settings
+        // Store bitrate and FPS cap in SharedPreferences (resolution comes from Recording Settings)
         android.content.SharedPreferences prefs = context.getSharedPreferences("FadCamPrefs", android.content.Context.MODE_PRIVATE);
         android.content.SharedPreferences.Editor editor = prefs.edit();
-        editor.putInt("stream_bitrate", preset.getBitrate()); // Bitrate for streaming
-        editor.putInt("stream_fps_cap", preset.getFps());     // Max FPS for streaming (cap user's recording fps if higher)
+        editor.putInt("stream_bitrate", preset.getBitrate());
+        editor.putInt("stream_fps_cap", preset.getFps());
         editor.putString("quality_preset", preset.name());
         editor.apply();
+        FLog.i(TAG, "[STREAM PRESET] Set: " + preset.getDisplayName()
+            + " | " + preset.getBitrateString()
+            + " | max " + preset.getFps() + "fps");
         
         // Log quality change event
         logClientEvent(new ClientEvent(

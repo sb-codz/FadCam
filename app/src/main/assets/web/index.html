@@ -1842,10 +1842,6 @@
                     <div class="modal-section-title">Usage & Estimate</div>
                     <div class="modal-rows-group">
                         <div class="modal-row-container">
-                            <div class="modal-row-label">Consumed Since Start</div>
-                            <div class="modal-row-value">${currentStatus.battery.consumed}%</div>
-                        </div>
-                        <div class="modal-row-container">
                             <div class="modal-row-label">Remaining Time</div>
                             <div class="modal-row-value" style="color: ${currentStatus.battery.remainingHours > 0 && currentStatus.battery.remainingHours < 2 ? '#f85149' : '#58a6ff'};">${currentStatus.battery.remainingHours > 0 ? currentStatus.battery.remainingHours.toFixed(1) + 'h' : 'N/A'}</div>
                         </div>
